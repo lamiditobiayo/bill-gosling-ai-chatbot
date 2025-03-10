@@ -1,7 +1,7 @@
 import os
 import openai
 from flask import Flask, request, jsonify
-from backend.config import OPENAI_API_KEY  # Ensure this is correct
+from backend.config import OPENAI_API_KEY  # Ensure this is correctly imported
 
 # Initialize OpenAI client
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
@@ -74,10 +74,10 @@ def chat():
     if knowledge_response:
         return jsonify({"response": knowledge_response})
 
-    # If not in knowledge base, use OpenAI
+    # If not in knowledge base, use OpenAI GPT-4o Mini
     try:
         response = client.chat.completions.create(
-            model="gpt-3.5-turbo",
+            model="gpt-4o-mini",  # ✅ Switched to GPT-4o Mini
             messages=[{"role": "system", "content": "You are a helpful assistant knowledgeable about Bill Gosling Outsourcing."},
                       {"role": "user", "content": user_input}],
             temperature=0.7
@@ -89,7 +89,7 @@ def chat():
 
 @app.route("/", methods=["GET"])
 def home():
-    return "Backend is running!"
+    return "Backend is running and using GPT-4o Mini!"
 
 # Run the Flask app (only in local development)
 if __name__ == "__main__":
