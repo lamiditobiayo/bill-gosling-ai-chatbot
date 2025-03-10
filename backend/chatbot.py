@@ -1,7 +1,7 @@
 import os
 import openai
 from flask import Flask, request, jsonify
-from backend.config import OPENAI_API_KEY  # Fixed import path
+from backend.config import OPENAI_API_KEY  # Ensure this is correct
 
 # Initialize OpenAI client
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
@@ -87,6 +87,10 @@ def chat():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/", methods=["GET"])
+def home():
+    return "Backend is running!"
+
 # Run the Flask app (only in local development)
 if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=5000)
+    app.run(host="0.0.0.0", port=10000)
