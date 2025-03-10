@@ -1,11 +1,5 @@
-import sys
-import os
-
-# Ensure the backend folder is in the Python path
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "backend")))
-
 import streamlit as st
-from chatbot import get_chatbot_response  # Import chatbot function correctly
+import requests
 
 # Set page title
 st.set_page_config(page_title="Bill Gosling AI Chatbot")
@@ -13,6 +7,9 @@ st.set_page_config(page_title="Bill Gosling AI Chatbot")
 # Display title and description
 st.title("Bill Gosling AI Chatbot")
 st.write("Welcome! I'm here to assist you. Ask me anything.")
+
+# Backend API URL (Update this with your Render backend URL)
+BACKEND_URL = "https://bill-gosling-chatbot-api.onrender.com/chat"  # Replace with your actual URL
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -31,10 +28,17 @@ if prompt := st.chat_input("Type your message here..."):
     with st.chat_message("user"):
         st.markdown(prompt)
 
-    # Get chatbot response
-    response = get_chatbot_response(prompt)
+    # Send user input to backend
+    try:
+        response = requests.post(BACKEND_URL, json={"message": prompt})
+        response_data = response.json()
+        chatbot_reply = response_data.get("response", "Error: No response received.")
+
+    except Exception as e:
+        chatbot_reply = f"Error: {str(e)}"
+
     # Add chatbot response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": response})
+    st.session_state.messages.append({"role": "assistant", "content": chatbot_reply})
     # Display chatbot response
     with st.chat_message("assistant"):
-        st.markdown(response)
+        st.markdown(chatbot_reply)
