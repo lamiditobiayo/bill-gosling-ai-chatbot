@@ -6,10 +6,28 @@ st.set_page_config(page_title="Bill Gosling AI Chatbot")
 
 # Display title and description
 st.title("Bill Gosling AI Chatbot")
-st.write("Welcome! I'm here to assist you. Ask me anything.")
+st.write("Welcome! I can answer your questions about Bill Gosling Outsourcing.")
 
 # Backend API URL (Update this with your Render backend URL)
 BACKEND_URL = "https://bill-gosling-chatbot-api.onrender.com/chat"  # Replace with your actual URL
+
+# Knowledge Base Shortcuts
+BGO_TOPICS = {
+    "Mission": "What is the mission of Bill Gosling Outsourcing?",
+    "Core Values": "What are the core values of Bill Gosling Outsourcing?",
+    "Services": "What services does Bill Gosling Outsourcing offer?",
+    "Resources": "What resources does Bill Gosling Outsourcing provide?",
+    "Book of Bill": "What is the Book of Bill at Bill Gosling Outsourcing?"
+}
+
+# Sidebar for Knowledge Base Shortcuts
+st.sidebar.header("📖 Bill Gosling Knowledge Base")
+for topic, query in BGO_TOPICS.items():
+    if st.sidebar.button(topic):
+        st.session_state["messages"].append({"role": "user", "content": query})
+        response = requests.post(BACKEND_URL, json={"message": query})
+        chatbot_reply = response.json().get("response", "Error retrieving response.")
+        st.session_state["messages"].append({"role": "assistant", "content": chatbot_reply})
 
 # Initialize chat history
 if "messages" not in st.session_state:
@@ -21,7 +39,7 @@ for message in st.session_state.messages:
         st.markdown(message["content"])
 
 # User input
-if prompt := st.chat_input("Type your message here..."):
+if prompt := st.chat_input("Type your question here..."):
     # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": prompt})
     # Display user message
@@ -30,15 +48,9 @@ if prompt := st.chat_input("Type your message here..."):
 
     # Send user input to backend
     try:
-        response = requests.post(BACKEND_URL, json={"message": prompt})
-        response_data = response.json()
-        chatbot_reply = response_data.get("response", "Error: No response received.")
-
-    except Exception as e:
-        chatbot_reply = f"Error: {str(e)}"
-
-    # Add chatbot response to chat history
-    st.session_state.messages.append({"role": "assistant", "content": chatbot_reply})
-    # Display chatbot response
-    with st.chat_message("assistant"):
-        st.markdown(chatbot_reply)
+        response = requests.post(BACKEND_URL, json={"message": prompt}, timeout=10)
+        if response.status_code == 200:
+            response_data = response.json()
+            chatbot_reply = response_data.get("response", "I am unable to respond at the moment.")
+        else:
+            chatbot_reply = f"Error {response.status
