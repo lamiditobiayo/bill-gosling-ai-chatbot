@@ -1,14 +1,22 @@
 import os
 import openai
-from config import OPENAI_API_KEY  # Fix import issue
+from flask import Flask, request, jsonify
+from backend.config import OPENAI_API_KEY  # Fixed import path
 
 # Initialize OpenAI client
 client = openai.OpenAI(api_key=OPENAI_API_KEY)
 
-def get_chatbot_response(user_input):
+# Initialize Flask app
+app = Flask(__name__)
+
+@app.route("/chat", methods=["POST"])
+def chat():
     """
-    Sends user input to OpenAI and returns chatbot response.
+    API endpoint to receive user messages and return AI responses.
     """
+    data = request.get_json()
+    user_input = data.get("message", "")
+
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
@@ -16,7 +24,11 @@ def get_chatbot_response(user_input):
                       {"role": "user", "content": user_input}],
             temperature=0.7
         )
-        return response.choices[0].message.content
+        return jsonify({"response": response.choices[0].message.content})
     
     except Exception as e:
-        return f"Error: {str(e)}"
+        return jsonify({"error": str(e)}), 500
+
+# Run the Flask app (only in local development)
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=5000)
