@@ -1,15 +1,19 @@
 import streamlit as st
 import requests
 
-# Set page title
+# Set page title and layout
 st.set_page_config(page_title="Bill Gosling AI Chatbot", layout="wide")
+
+# Display BGO Logo
+logo_url = "https://raw.githubusercontent.com/lamiditobiayo/bill-gosling-ai-chatbot/main/frontend/assets/bgo_logo.png"  # Update if needed
+st.image(logo_url, width=200)
 
 # Display title and description
 st.title("Bill Gosling AI Chatbot")
 st.write("Welcome! I can answer your questions about Bill Gosling Outsourcing.")
 
 # Backend API URL (Update this with your Render backend URL)
-BACKEND_URL = "https://bill-gosling-chatbot-api.onrender.com/chat"  # Replace with your actual URL
+BACKEND_URL = "https://bill-gosling-chatbot-api.onrender.com/chat"
 
 # Knowledge Base Shortcuts
 BGO_TOPICS = {
@@ -40,16 +44,14 @@ for message in st.session_state.messages:
     with st.chat_message(message["role"]):
         st.markdown(message["content"])
 
-# **FIX: Ensure `st.chat_input()` is always visible**
-user_input = st.chat_input("Type your question here...")  # Ensures search field is shown
+# Chat input
+user_input = st.chat_input("Type your question here...")
 
 if user_input:
-    # Add user message to chat history
     st.session_state.messages.append({"role": "user", "content": user_input})
     with st.chat_message("user"):
         st.markdown(user_input)
 
-    # Send user input to backend
     try:
         response = requests.post(BACKEND_URL, json={"message": user_input}, timeout=10)
         if response.status_code == 200:
@@ -61,7 +63,6 @@ if user_input:
     except requests.exceptions.RequestException as e:
         chatbot_reply = f"Error: Unable to connect to backend. ({str(e)})"
 
-    # Add chatbot response to chat history
     st.session_state.messages.append({"role": "assistant", "content": chatbot_reply})
     with st.chat_message("assistant"):
         st.markdown(chatbot_reply)
