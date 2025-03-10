@@ -53,4 +53,13 @@ if prompt := st.chat_input("Type your question here..."):
             response_data = response.json()
             chatbot_reply = response_data.get("response", "I am unable to respond at the moment.")
         else:
-            chatbot_reply = f"Error {response.status
+            chatbot_reply = f"Error {response.status_code}: Backend is not responding."
+
+    except requests.exceptions.RequestException as e:
+        chatbot_reply = f"Error: Unable to connect to backend. ({str(e)})"
+
+    # Add chatbot response to chat history
+    st.session_state.messages.append({"role": "assistant", "content": chatbot_reply})
+    # Display chatbot response
+    with st.chat_message("assistant"):
+        st.markdown(chatbot_reply)
